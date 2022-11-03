@@ -12,11 +12,11 @@ const fileUpload = multer({
   limit: 500000,
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, "public/images");
+      cb(null, "uploads/images");
     },
     filename: (req, file, cb) => {
       const ext = MIME_TYPE_MAP[file.mimetype];
-      cb(null, uuidv4() + "." + ext);
+      cb(null, "public/" + uuidv4() + "." + ext);
     },
   }),
   fileFilter: (req, file, cb) => {
