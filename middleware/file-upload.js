@@ -1,6 +1,6 @@
-const multer = require("multer");
+/*const multer = require("multer");
 const HttpError = require("./http-error");
-const { v4: uuidv4 } = require("uuid");
+
 
 const MIME_TYPE_MAP = {
   "image/png": "png",
@@ -16,7 +16,7 @@ const fileUpload = multer({
     },
     filename: (req, file, cb) => {
       const ext = MIME_TYPE_MAP[file.mimetype];
-      cb(null, "public/" + uuidv4() + "." + ext);
+      cb(null, uuidv4() + "." + ext);
     },
   }),
   fileFilter: (req, file, cb) => {
@@ -29,6 +29,39 @@ const fileUpload = multer({
         );
     cb(error, isValid);
   },
+});*/
+
+//connecting to AWS for file storage
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3({
+  accessKeyId: process.env.BUCKETEER_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.BUCKETEER_AWS_SECRET_ACCESS_KEY,
+  region: "us-east-1",
 });
+const { v4: uuidv4 } = require("uuid");
+
+const fileUpload = (image) => {
+  var params = {
+    Key: `public/${uuidv4()}`,
+    Bucket: process.env.BUCKETEER_BUCKET_NAME,
+    Body: image,
+  };
+
+  s3.putObject(params, function put(err, data) {
+    if (err) {
+      console.log(err, err.stack);
+      return;
+    } else {
+      console.log(data);
+    }
+
+    delete params.Body;
+    s3.getObject(params, function put(err, data) {
+      if (err) console.log(err, err.stack);
+      else console.log(data);
+      console.log(data.Body.toString());
+    });
+  });
+};
 
 module.exports = fileUpload;
