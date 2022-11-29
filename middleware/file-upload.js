@@ -1,6 +1,17 @@
-/*const multer = require("multer");
+const multer = require("multer");
+const multerS3 = require("multer-s3");
+const { S3Client } = require("@aws-sdk/client-s3");
 const HttpError = require("./http-error");
+const { v4: uuidv4 } = require("uuid");
 
+const AWS = require("aws-sdk");
+const s3 = new S3Client({
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: process.env.BUCKETEER_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.BUCKETEER_AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const MIME_TYPE_MAP = {
   "image/png": "png",
@@ -10,11 +21,11 @@ const MIME_TYPE_MAP = {
 
 const fileUpload = multer({
   limit: 500000,
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "uploads/images");
-    },
-    filename: (req, file, cb) => {
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.BUCKETEER_BUCKET_NAME,
+    acl: "public-read",
+    key: function (req, file, cb) {
       const ext = MIME_TYPE_MAP[file.mimetype];
       cb(null, uuidv4() + "." + ext);
     },
@@ -29,39 +40,6 @@ const fileUpload = multer({
         );
     cb(error, isValid);
   },
-});*/
-
-//connecting to AWS for file storage
-const AWS = require("aws-sdk");
-const s3 = new AWS.S3({
-  accessKeyId: process.env.BUCKETEER_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.BUCKETEER_AWS_SECRET_ACCESS_KEY,
-  region: "us-east-1",
 });
-const { v4: uuidv4 } = require("uuid");
-
-const fileUpload = (image) => {
-  var params = {
-    Key: `public/${uuidv4()}`,
-    Bucket: process.env.BUCKETEER_BUCKET_NAME,
-    Body: image,
-  };
-
-  s3.putObject(params, function put(err, data) {
-    if (err) {
-      console.log(err, err.stack);
-      return;
-    } else {
-      console.log(data);
-    }
-
-    delete params.Body;
-    s3.getObject(params, function put(err, data) {
-      if (err) console.log(err, err.stack);
-      else console.log(data);
-      console.log(data.Body.toString());
-    });
-  });
-};
 
 module.exports = fileUpload;

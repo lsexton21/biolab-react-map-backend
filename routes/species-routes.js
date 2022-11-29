@@ -14,8 +14,7 @@ router.get("/user/:userId", speciesControllers.getSpeciesByUserId);
 
 router.use(checkAuth);
 
-//router.post("/", fileUpload.single("image"), speciesControllers.addSpecies);
-router.post("/", fileUpload(req.body.image), speciesControllers.addSpecies);
+router.post("/", fileUpload.single("image"), speciesControllers.addSpecies);
 
 router.patch("/:speciesId", speciesControllers.editSpeciesById);
 

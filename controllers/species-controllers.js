@@ -149,7 +149,7 @@ const addSpecies = async (req, res, next) => {
     dateFound,
     imgs: {
       keyImg: {
-        source: req.file.path,
+        source: req.file.key,
       },
     },
     taxa: updatedTaxa,

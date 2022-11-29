@@ -19,9 +19,6 @@ const app = express();
 
 app.use(express.json({ extended: true }));
 
-//middleware for image requests
-app.use("/uploads/images", express.static(path.join("uploads", "images")));
-
 //setting header to avoid CORS restrictions
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
