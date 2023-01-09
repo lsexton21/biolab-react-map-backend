@@ -6,10 +6,11 @@ const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res, next) => {
   const { firstName, lastName, email, password } = req.body;
+  const lowerCaseEmail = email.toLowerCase();
 
   let existingUser;
   try {
-    existingUser = await UserModel.findOne({ email: email });
+    existingUser = await UserModel.findOne({ email: lowerCaseEmail });
   } catch (error) {
     return next(new HttpError("Registration Failed. Please try again.", 500));
   }
@@ -30,7 +31,7 @@ const registerUser = async (req, res, next) => {
   const newUser = new UserModel({
     firstName,
     lastName,
-    email,
+    email: lowerCaseEmail,
     admin: false,
     password: hashedPassword,
     profileImg: req.file.key || null,
@@ -67,11 +68,11 @@ const registerUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
-
+  const lowerCaseEmail = email.toLowerCase();
   let existingUser;
 
   try {
-    existingUser = await UserModel.findOne({ email: email });
+    existingUser = await UserModel.findOne({ email: lowerCaseEmail });
   } catch (error) {
     return next(new HttpError("Login Failed. Please try again.", 500));
   }
